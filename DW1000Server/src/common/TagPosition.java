@@ -1,9 +1,9 @@
 package common;
 
-import java.util.Date;
+import java.util.List;
 
 public class TagPosition {
 	public Tag tag;
 	public Coordinate coordinates;
-	public Date lastUpdated;
+	public List<common.AnchorTagDistance> listAnchorTagDistance;
 }

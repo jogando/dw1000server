@@ -12,6 +12,7 @@ public class PositionWorker {
 		List<Float> listDistances = new ArrayList<Float>();
 		
 		List<common.AnchorTagDistance> listAnchorTagDistances = service.master.Service.getInstance().getListAnchorTagDistance();
+		List<common.AnchorTagDistance> listAnchorTagDistancesUsed = new ArrayList<common.AnchorTagDistance>();
 		
 		for(common.AnchorTagDistance atd : listAnchorTagDistances)
 		{
@@ -19,6 +20,8 @@ public class PositionWorker {
 			{
 				listAnchorsInRange.add(common.Config.getAnchorById(atd.anchorId));
 				listDistances.add(atd.distance);
+				
+				listAnchorTagDistancesUsed.add(atd);
 				
 				if(listAnchorsInRange.size() == 3)//we only need 3 anchors for trilaterating
 				{
@@ -40,6 +43,7 @@ public class PositionWorker {
 			result = new common.TagPosition();
 			result.coordinates = position;
 			result.tag = new common.Tag(tagId);
+			result.listAnchorTagDistance = listAnchorTagDistancesUsed; 
 		}
 		else// not enough anchors for trilaterating
 		{
