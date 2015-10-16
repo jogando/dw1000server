@@ -206,15 +206,8 @@ class HttpWorker implements Runnable
 	private String handleScene() throws Exception
 	{
 		Gson gson = new Gson();
-		String result = null;
-		
-		Map<String,String> parameters = common.Util.splitQuery(httpExchange.getRequestURI().getQuery());
-		
-		String sceneId = parameters.get("id");
-		
-		result = gson.toJson(common.Config.getSceneById(sceneId));
-		
-		
+		String result = gson.toJson(common.Config.scene);
+			
 		return result;
 	}
 

@@ -14,7 +14,7 @@
         
         function load()
         {
-            requestScene("test");
+            requestScene();
             setInterval(function(){
             	if(isRunning)
            		{
@@ -28,7 +28,7 @@
             return coordinate * ratioCoordinateToPx;
         }
 
-        function requestScene(sceneId)
+        function requestScene()
         {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
@@ -38,7 +38,7 @@
                     renderScene();
                 }
             }
-            xhttp.open("GET", "/scene?id=test", false);//SYNC!!!!!
+            xhttp.open("GET", "/scene", false);//SYNC!!!!!
             xhttp.send();
         }
         
@@ -47,10 +47,9 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (xhttp.readyState == 4 && xhttp.status == 200) {
-                	if(xhttp.responseText != "not enough anchors for trilaterating")
-               		{
-                		listTagPositions = JSON.parse(xhttp.responseText);
-               		}
+
+               		listTagPositions = JSON.parse(xhttp.responseText);
+
                 	renderScene();
                 }
             }

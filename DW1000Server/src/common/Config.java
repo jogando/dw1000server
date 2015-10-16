@@ -17,7 +17,7 @@ public class Config {
 	public static String deviceId;
 	//public List<Tag> listTags;
 	public static List<Anchor> listAnchors;
-	public static List<Scene> listScenes;
+	public static Scene scene;
 	
 	public static boolean debugMode = true;
 	
@@ -43,7 +43,7 @@ public class Config {
 		
 		loadNetworkDevices(rootObj.getAsJsonArray("listNetworkDevices"));
 		loadAnchors();
-		loadScenes(rootObj.getAsJsonArray("listScenes"));
+		loadScene(rootObj.getAsJsonObject("scene"));
 	}
 	
 	private static void loadAnchors()
@@ -70,20 +70,12 @@ public class Config {
 		}
 	}
 	
-	private static void loadScenes(JsonArray scenes)
+	private static void loadScene(JsonObject jsonScene)
 	{
-		listScenes = new ArrayList<Scene>();
 		Gson gson = new Gson();
 
-		for(int i =0;i<scenes.size();i++)
-		{
-			JsonObject jsonScene = scenes.get(i).getAsJsonObject();
-			
-			Scene scene = gson.fromJson(jsonScene.toString(), Scene.class);
-			
-			listScenes.add(scene);
-		}
-		
+		scene = gson.fromJson(jsonScene.toString(), Scene.class);
+		scene.listAnchors = listAnchors;
 	}
 	
 	private static void loadNetworkDevices(JsonArray networkDevices)
@@ -204,20 +196,4 @@ public class Config {
 		return result;
 	}
 	
-	public static Scene getSceneById(String id)
-	{
-		Scene result = null;
-		
-		for(Scene t : listScenes)
-		{
-			if(t.id.equals(id))
-			{
-				result = t;
-				result.listAnchors = listAnchors;
-				break;
-			}
-		}
-		
-		return result;
-	}
 }
