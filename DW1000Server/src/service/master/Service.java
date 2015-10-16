@@ -23,9 +23,9 @@ public class Service {
 	private HttpServer _server;
 	private Thread threadDataMaintainer;
 	
-	private int maxSecondsAnchorTagDistance;
-	private int maxSecondsNetworkDevice;
-	private int maxSecondsTag;
+	private int maxSecondsAnchorTagDistance = 3;
+	private int maxSecondsNetworkDevice = 3;
+	private int maxSecondsTag = 2;
 	
 	private List<common.AnchorTagDistance> listAnchorTagDistance;
 	private List<common.Tag> listAvailableTags;
@@ -47,10 +47,6 @@ public class Service {
 		listAnchorTagDistance = new ArrayList<common.AnchorTagDistance>();
 		listAvailableTags = new ArrayList<common.Tag>();
 		listAvailableNetworkDevices = new ArrayList<common.network.Device>();
-		
-		maxSecondsAnchorTagDistance = Integer.parseInt(nds.parameters.get("maxSecondsAnchorTagDistance"));
-		maxSecondsNetworkDevice = Integer.parseInt(nds.parameters.get("maxSecondsNetworkDevice"));
-		maxSecondsTag = Integer.parseInt(nds.parameters.get("maxSecondsTag"));
 		
 		int httpPort = Integer.parseInt(nds.parameters.get("httpPort"));
 		

@@ -1,0 +1,87 @@
+{
+  "listNetworkDevices": 
+	[
+    	{
+			"id": "mac1",
+			"ip":"192.168.0.2",
+      "listServices":[
+        {
+          "type":"master",
+          "parameters" : [
+            {"httpPort": 8080}
+          ]
+        },
+        {
+          "type":"webApp",
+          "parameters" : [
+            {"webPath": "/home/pi/dw1000server/index.html"},
+            {"httpPort": 8081}
+          ]
+        },
+        {
+          "type":"anchor",
+          "parameters" : [
+            {"anchorId":"anchor2"},
+            {"portName": "/dev/cu.SLAB_USBtoUART"},
+            {"coordinateX": 0.5},
+            {"coordinateY": 1.5}
+          ]
+        },
+        {
+          "type":"heartbeat",
+          "parameters" : [
+            {"sleepSeconds": 1}
+          ]
+        }
+      ]
+    },
+    {
+			"id": "raspberrypi",
+			"ip":"192.168.0.3",
+      "listServices":[
+        {
+          "type":"anchor",
+          "parameters" : [
+            {"anchorId":"anchor3"},
+            {"portName": "/dev/ttyUSB1"},
+            {"coordinateX": 2.75},
+            {"coordinateY": 5.65}
+          ]
+        },
+        {
+          "type":"heartbeat",
+          "parameters" : [
+            {"sleepSeconds": 1}
+          ]
+        }
+      ]
+    },
+    {
+			"id": "raspberrypi2",
+			"ip":"192.168.0.4",
+      "listServices":[
+        {
+          "type":"anchor",
+          "parameters" : [
+            {"anchorId":"anchor1"},
+            {"portName": "/dev/ttyUSB0"},
+            {"coordinateX": 1},
+            {"coordinateY": 4.15}
+          ]
+        },
+        {
+          "type":"heartbeat",
+          "parameters" : [
+            {"sleepSeconds": 1}
+          ]
+        }
+      ]
+    }
+    
+  ],
+  "scene": 
+    {
+      "endX":3.15,
+      "endY":6.65
+    }
+}
