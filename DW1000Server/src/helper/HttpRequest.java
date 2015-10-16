@@ -63,8 +63,10 @@ public class HttpRequest {
 			try {
 				sendRequest();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(common.Config.debugMode)
+					e.printStackTrace();
+				else
+					common.Util.addToLog(common.LogType.ERROR, e.getMessage());
 			}
 		}
 		
@@ -117,9 +119,12 @@ public class HttpRequest {
 	            rd.close();
 
 	        } 
-	        catch (Exception ex) 
+	        catch (Exception e) 
 	        {
-	        	System.out.println("httpRequest error:"+ex.getMessage());
+	        	if(common.Config.debugMode)
+					e.printStackTrace();
+				else
+					common.Util.addToLog(common.LogType.ERROR, e.getMessage());
 	        } 
 	        finally {
 	            if(connection != null) {

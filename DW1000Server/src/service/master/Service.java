@@ -23,10 +23,13 @@ public class Service {
 	private HttpServer _server;
 	private Thread threadDataMaintainer;
 	
-	private int maxSeconds;
+	private int maxSecondsAnchorTagDistance;
+	private int maxSecondsNetworkDevice;
+	private int maxSecondsTag;
 	
 	private List<common.AnchorTagDistance> listAnchorTagDistance;
 	private List<common.Tag> listAvailableTags;
+	private List<common.network.Device> listAvailableNetworkDevices;
 	
 	private Service(){}
 	
@@ -39,23 +42,17 @@ public class Service {
 		return instance;
 	}
 	
-	public void initialize() throws Exception
+	public void initialize(common.network.DeviceService nds) throws Exception
 	{
 		listAnchorTagDistance = new ArrayList<common.AnchorTagDistance>();
 		listAvailableTags = new ArrayList<common.Tag>();
+		listAvailableNetworkDevices = new ArrayList<common.network.Device>();
 		
-		Integer httpPort = null;//the port in which the HTTP server will be listening for requests
+		maxSecondsAnchorTagDistance = Integer.parseInt(nds.parameters.get("maxSecondsAnchorTagDistance"));
+		maxSecondsNetworkDevice = Integer.parseInt(nds.parameters.get("maxSecondsNetworkDevice"));
+		maxSecondsTag = Integer.parseInt(nds.parameters.get("maxSecondsTag"));
 		
-		common.network.Device currentDevice = common.Config.getCurrentNetworkDevice();
-		
-		for(common.network.DeviceService nds : currentDevice.listServices)
-		{
-			if(nds.type.equals("master"))
-			{
-				httpPort = Integer.parseInt(nds.parameters.get("httpPort"));
-				break;
-			}
-		}
+		int httpPort = Integer.parseInt(nds.parameters.get("httpPort"));
 		
 		startHttpServer(httpPort);
 		
@@ -83,15 +80,38 @@ public class Service {
 				atd.distance = newAtd.distance;
 				atd.ts = new Date();
 				found = true;
-				System.out.println("updated: "+newAtd.anchorId+"<->"+newAtd.tagId+":"+newAtd.distance);
+				common.Util.addToLog(common.LogType.INFO, "updated: "+newAtd.anchorId+"<->"+newAtd.tagId+":"+newAtd.distance);
 				break;
 			}
 		}
 		
 		if(!found)
 		{
-			System.out.println("added: "+newAtd.anchorId+"<->"+newAtd.tagId+":"+newAtd.distance);
+			common.Util.addToLog(common.LogType.INFO, "added: "+newAtd.anchorId+"<->"+newAtd.tagId+":"+newAtd.distance);
 			listAnchorTagDistance.add(newAtd);
+		}
+		
+		//update available tags
+		boolean tagFound = false;
+		
+		for(common.Tag tag : listAvailableTags)
+		{
+			if(tag.id.equals(newAtd.tagId))
+			{
+				tagFound = true;
+				tag.lastSeen = new Date();//update the last seen datetime
+				break;
+			}
+		}
+		
+		if(!tagFound)
+		{
+			common.Tag tag = new common.Tag();
+			tag.id = newAtd.tagId;
+			tag.lastSeen = new Date();
+			
+			listAvailableTags.add(tag);
+			common.Util.addToLog(common.LogType.INFO, "tag added: "+tag.id);
 		}
 	}
 	
@@ -119,18 +139,76 @@ public class Service {
 		return result;
 	}
 	
-	public synchronized void purgeOldData()
+	public synchronized void purgeOldAnchorTagDistance()
 	{
 		ListIterator<common.AnchorTagDistance> iter = listAnchorTagDistance.listIterator();
 		Date now = new Date();
 		
-		//remove anchor-tag distance messages older than the max time allowded
+		//remove anchor-tag distance messages older than the max time allowed
 		while(iter.hasNext()){
 			long diff = now.getTime() - iter.next().ts.getTime();
-		    if((diff / 1000 % 60)>maxSeconds)
+		    if((diff / 1000 % 60)>maxSecondsAnchorTagDistance)
 		    {
 		    	iter.remove();
 		    }
+		}
+	}
+	
+	public synchronized void purgeOldTags()
+	{
+		ListIterator<common.Tag> iter = listAvailableTags.listIterator();
+		Date now = new Date();
+		
+		//remove anchor-tag distance messages older than the max time allowed
+		while(iter.hasNext()){
+			common.Tag tag = iter.next();
+			long diff = now.getTime() - tag.lastSeen.getTime();
+		    if((diff / 1000 % 60)>maxSecondsTag)
+		    {
+		    	common.Util.addToLog(common.LogType.INFO, "tag deleted: "+tag.id);
+		    	iter.remove();
+		    }
+		}
+	}
+	
+	public synchronized void purgeOldNetworkDevices()
+	{
+		ListIterator<common.network.Device> iter = listAvailableNetworkDevices.listIterator();
+		Date now = new Date();
+		
+		//remove anchor-tag distance messages older than the max time allowed
+		while(iter.hasNext()){
+			common.network.Device device = iter.next();
+			long diff = now.getTime() - device.lastSeen.getTime();
+		    if((diff / 1000 % 60)>maxSecondsNetworkDevice)
+		    {
+		    	common.Util.addToLog(common.LogType.INFO, "networkDevice deleted: "+device.id);
+		    	iter.remove();
+		    }
+		}
+	}
+	
+	public synchronized void updateNetworkDeviceLastSeen(String deviceId)
+	{
+		boolean found = false;
+		
+		for(common.network.Device device : listAvailableNetworkDevices)
+		{
+			if(device.id.equals(deviceId))
+			{
+				device.lastSeen = new Date();
+				found = true;
+				break;
+			}
+		}
+		
+		if(!found)
+		{
+			common.network.Device device = common.Config.getNetworkDeviceById(deviceId);
+			device.lastSeen = new Date();
+			
+			listAvailableNetworkDevices.add(device);
+			common.Util.addToLog(common.LogType.INFO, "networkDevice added: "+deviceId);
 		}
 	}
 	
@@ -138,6 +216,7 @@ public class Service {
 	{
 		listAvailableTags = new ArrayList<common.Tag>();
 		List<String> listAllTagIds = new ArrayList<String>();
+		
 		
 		for(common.AnchorTagDistance atd : listAnchorTagDistance)
 		{
@@ -193,20 +272,23 @@ class HttpWorker implements Runnable
 			String response = null;
 			switch(httpExchange.getRequestURI().getPath())
 			{
-				case "/addAnchorTagDistance":
+				case "/anchorTagDistance":
 					response = handleAddAnchorTagDistance();
+					break;
+				case "/heartbeat":
+					response = handleHeartbeat();
 					break;
 			}
 			httpExchange.sendResponseHeaders(200, response.length()); 
 			os.write(response.getBytes());
 			os.flush();
 		}
-		catch(Exception ex)
+		catch(Exception e)
 		{
 			if(common.Config.debugMode)
-				ex.printStackTrace();
+				e.printStackTrace();
 			else
-				System.out.println(ex.getMessage());
+				common.Util.addToLog(common.LogType.ERROR, e.getMessage());
 		}
 		
 	}
@@ -218,13 +300,38 @@ class HttpWorker implements Runnable
 		
 		Map<String,String> parameters = common.Util.splitQuery(httpExchange.getRequestURI().getQuery());
 		
-		common.AnchorTagDistance atd = new common.AnchorTagDistance();
-		atd.anchorId = parameters.get("anchorId");
-		atd.tagId = parameters.get("tagId");
-		atd.distance = Float.parseFloat(parameters.get("distance"));
-		atd.ts = new Date();
+		switch(parameters.get("a"))
+		{
+			case "add":
+				common.AnchorTagDistance atd = new common.AnchorTagDistance();
+				atd.anchorId = parameters.get("anchorId");
+				atd.tagId = parameters.get("tagId");
+				atd.distance = Float.parseFloat(parameters.get("distance"));
+				atd.ts = new Date();
+				
+				service.master.Service.getInstance().addAnchorTagDistance(atd);
+				break;
+		}
 		
-		service.master.Service.getInstance().addAnchorTagDistance(atd);
+		
+		result = "ok";
+		
+		return result;
+	}
+	
+	private String handleHeartbeat() throws Exception
+	{
+		String result = null;
+		
+		Map<String,String> parameters = common.Util.splitQuery(httpExchange.getRequestURI().getQuery());
+		
+		switch(parameters.get("a"))
+		{
+			case "send":
+				String deviceId = parameters.get("deviceId");
+				service.master.Service.getInstance().updateNetworkDeviceLastSeen(deviceId);
+				break;
+		}
 		
 		result = "ok";
 		
@@ -249,12 +356,16 @@ class DataMaintainer implements Runnable
 		{
 			try
 			{
-				service.master.Service.getInstance().purgeOldData();
-				service.master.Service.getInstance().updateListAvailableTags();
+				service.master.Service.getInstance().purgeOldAnchorTagDistance();
+				service.master.Service.getInstance().purgeOldNetworkDevices();
+				service.master.Service.getInstance().purgeOldTags();
 			}
-			catch(Exception ex)
+			catch(Exception e)
 			{
-				ex.printStackTrace();
+				if(common.Config.debugMode)
+					e.printStackTrace();
+				else
+					common.Util.addToLog(common.LogType.ERROR, e.getMessage());
 			}
 			finally
 			{

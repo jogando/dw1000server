@@ -8,6 +8,15 @@ public class Dispatcher {
 	private List<ISerialPortInterfaceObserver> listObservers;
 	private List<SerialPortInterface> listSerialPortInterfaces;
 	
+	public static synchronized Dispatcher getInstance()
+	{
+		if(_instance == null)
+        {
+            _instance = new Dispatcher();
+        }
+        return _instance;
+	}
+	
 	private Dispatcher()
 	{
 		listSerialPortInterfaces = new ArrayList<SerialPortInterface>();
@@ -53,14 +62,7 @@ public class Dispatcher {
 	}
 	
 	
-	public static synchronized Dispatcher getInstance()
-	{
-		if(_instance == null)
-        {
-            _instance = new Dispatcher();
-        }
-        return _instance;
-	}
+	
 	
 	//When we read data from the serial port, we need to notify all the registered observers for that port name
 	public synchronized void routeNewData(String portName, String data)

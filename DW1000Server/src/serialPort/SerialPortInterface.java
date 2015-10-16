@@ -92,9 +92,11 @@ public class SerialPortInterface implements SerialPortEventListener {
                 {
                     //System.out.println("data not understood.");
                 }
-            } catch (Exception ex) {
-               //System.err.println(e.toString());
-            	ex.printStackTrace();
+            } catch (Exception e) {
+            	if(common.Config.debugMode)
+    				e.printStackTrace();
+    			else
+    				common.Util.addToLog(common.LogType.ERROR, e.getMessage());
             }
         }
     }

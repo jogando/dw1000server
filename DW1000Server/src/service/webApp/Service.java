@@ -31,11 +31,11 @@ public class Service {
 	}
 
 	
-	public void initialize(int port, String _webPath) throws Exception
+	public void initialize(common.network.DeviceService nds) throws Exception
 	{
-		webPath = _webPath;
+		webPath = nds.parameters.get("webPath");
 
-		HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+		HttpServer server = HttpServer.create(new InetSocketAddress(Integer.parseInt(nds.parameters.get("httpPort"))), 0);
 	    server.createContext("/", new MyHttpHandler());
 	    server.setExecutor(null); // creates a default executor
 	    server.start();
@@ -93,9 +93,12 @@ class FileHttpWorker implements Runnable
 			os.write(bytearray,0,bytearray.length);
 			
 		}
-		catch(Exception ex)
+		catch(Exception e)
 		{
-			ex.printStackTrace();
+			if(common.Config.debugMode)
+				e.printStackTrace();
+			else
+				common.Util.addToLog(common.LogType.ERROR, e.getMessage());
 		}
 		finally
 		{
@@ -128,9 +131,12 @@ class HttpWorker implements Runnable
 			os.write(response.getBytes());
 			os.flush();
 		}
-		catch(Exception ex)
+		catch(Exception e)
 		{
-			ex.printStackTrace();
+			if(common.Config.debugMode)
+				e.printStackTrace();
+			else
+				common.Util.addToLog(common.LogType.ERROR, e.getMessage());
 		}
 		finally
 		{
@@ -144,7 +150,7 @@ class HttpWorker implements Runnable
 	
 	private String handleRequest()  throws Exception
 	{
-		String result = null;
+		String result = "";
 		
 		switch(httpExchange.getRequestURI().getPath())
 		{

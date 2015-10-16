@@ -26,12 +26,12 @@ public class Config {
 	private static String configPath;
 
 
-	public static void initialize(String cnfPath) throws Exception
+	public static void initialize(String cnfPath, String devId) throws Exception
 	{
-		deviceId = Util.getHostname();
+		deviceId = devId;
 		configPath = cnfPath;
 		loadValues();
-		System.out.println("Config loading finished...");
+		common.Util.addToLog(LogType.INFO, "Config loading finished...");
 	}
 	
 	private static void loadValues() throws Exception
@@ -41,8 +41,7 @@ public class Config {
 		JsonParser parser = new JsonParser();
 		JsonObject rootObj = parser.parse(jsonString).getAsJsonObject();
 		
-		loadNetworkDevices(rootObj.getAsJsonArray("networkDevices"));
-		//loadTags(rootObj.getAsJsonArray("listTags"));
+		loadNetworkDevices(rootObj.getAsJsonArray("listNetworkDevices"));
 		loadAnchors();
 		loadScenes(rootObj.getAsJsonArray("listScenes"));
 	}
@@ -60,7 +59,7 @@ public class Config {
 					Anchor anchor = new Anchor();
 					//anchor.arduinoSerialPort = service.parameters.get("portName");
 					//anchor.uwbShortAddress = service.parameters.get("uwbShortAddress");
-					anchor.id = service.parameters.get("id");
+					anchor.id = service.parameters.get("anchorId");
 					anchor.coordinates = new Coordinate(
 							Float.parseFloat(service.parameters.get("coordinateX")),
 							Float.parseFloat(service.parameters.get("coordinateY")));
@@ -148,11 +147,25 @@ public class Config {
 			{
 				if(service.type.equals("master"))
 				{
-
 					result = device;
 					break;
-					
 				}
+			}
+		}
+		
+		return result;
+	}
+	
+	public static common.network.Device getNetworkDeviceById(String id)
+	{
+		common.network.Device result = null;
+		
+		for(common.network.Device device : listNetworkDevices)
+		{
+			if(device.id.equals(id))
+			{
+				result = device;
+				break;
 			}
 		}
 		

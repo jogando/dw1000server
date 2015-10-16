@@ -1,5 +1,7 @@
 package common;
 
+import java.util.Date;
+
 public class Tag {
 	public Tag()
 	{}
@@ -11,6 +13,6 @@ public class Tag {
 	{id = t.id;}
 	
 	public String id;
-	
+	public Date lastSeen;
 	
 }

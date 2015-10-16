@@ -10,10 +10,17 @@
 		var scene;
         var listTagPositions;
         
+        var isRunning = false;
+        
         function load()
         {
             requestScene("test");
-            setInterval(requestTagPositions, 500);
+            setInterval(function(){
+            	if(isRunning)
+           		{
+            		requestTagPositions();
+           		}
+            }, 500);
         }
 
         function getPxFromCoordinate(coordinate)
@@ -139,9 +146,25 @@
         	html +="<br>";
         	document.getElementById("divInfo").innerHTML += html;
         }
+        
+        function btnRunning_click()
+        {
+        	isRunning = !isRunning;
+        	if(isRunning)
+       		{
+        		document.getElementById("btnRunning").value = "stop";
+       		}
+        	else
+       		{
+        		document.getElementById("btnRunning").value = "start";
+       		}
+        	
+        }
     </script>
 </head>
 <body onload="load()">
+	This button starts/stops the request of the tag positions:<br>
+	<input type="button" id="btnRunning" value="start" onclick="btnRunning_click()"/>
 	<table>
 		<tr>
 			<td><div id="canvasContainer"></div></td>

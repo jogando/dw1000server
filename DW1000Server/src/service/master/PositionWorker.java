@@ -30,6 +30,11 @@ public class PositionWorker {
 			}
 		}
 		
+		result = new common.TagPosition();
+		
+		result.tag = new common.Tag(tagId);
+		result.listAnchorTagDistance = listAnchorTagDistancesUsed; 
+		
 		if(listAnchorsInRange.size() == 3)//we only need 3 anchors for trilaterating
 		{
 			common.Coordinate position = getCoordinates(
@@ -40,14 +45,12 @@ public class PositionWorker {
 					listDistances.get(1), 
 					listDistances.get(2));
 			
-			result = new common.TagPosition();
 			result.coordinates = position;
-			result.tag = new common.Tag(tagId);
-			result.listAnchorTagDistance = listAnchorTagDistancesUsed; 
 		}
 		else// not enough anchors for trilaterating
 		{
-			
+			result.coordinates = null;
+			common.Util.addToLog(common.LogType.INFO, "Not enouth anchors for trilaterating");
 		}
 		
 		return result;

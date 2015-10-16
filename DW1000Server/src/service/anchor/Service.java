@@ -18,29 +18,17 @@ public class Service  implements serialPort.ISerialPortInterfaceObserver{
 		return instance;
 	}
 	
-	public void initialize(String _portName) throws Exception
+	public void initialize(common.network.DeviceService nds) throws Exception
 	{
-		portName = _portName;
+		//Serial Port Name in which the arduino is connected to the computer
+		portName = nds.parameters.get("portName");
 			
 		common.network.Device masterDevice = common.Config.getMasterNetworkDevice();
+		common.network.DeviceService masterService = masterDevice.getServicesByType("master").get(0);//there´s only 1 master service
 		
-		for(common.network.DeviceService nds : masterDevice.listServices)
-		{
-			if(nds.type.equals("master"))
-			{
-				masterUrl = "http://"+masterDevice.ip+":" + Integer.parseInt(nds.parameters.get("httpPort"));
-				break;
-			}
-		}
+		masterUrl = "http://"+masterDevice.ip+":" + Integer.parseInt(masterService.parameters.get("httpPort"));
 		
-		for(common.network.DeviceService nds : common.Config.getCurrentNetworkDevice().listServices)
-		{
-			if(nds.type.equals("anchor"))
-			{
-				anchorId = nds.parameters.get("id");
-				break;
-			}
-		}
+		anchorId = nds.parameters.get("anchorId");;
 		
 		serialPort.Dispatcher.getInstance().registerObserver(this);
 	}
@@ -52,13 +40,15 @@ public class Service  implements serialPort.ISerialPortInterfaceObserver{
 		String[] parts = data.replace("[", "").replace("]", "").split(":");
 		
 		String url = masterUrl
-				+"/addAnchorTagDistance?"
-				+ "anchorId="+anchorId
+				+"/anchorTagDistance?a=add"
+				+ "&anchorId="+anchorId
 				+ "&tagId="+parts[0]
 				+ "&distance="+parts[1];
 		
 		helper.HttpRequest req = new helper.HttpRequest(url);
 		req.sendAsync();
+		
+		common.Util.addToLog(common.LogType.INFO, "distance to "+parts[0]+": "+parts[1]+"m");
 	}
 
 	@Override
