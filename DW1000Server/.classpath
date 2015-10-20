@@ -4,5 +4,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.4.jar"/>
 	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-server-9.3.5.v20151012.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-servlet-9.3.5.v20151012.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-9.3.5.v20151012.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-http-9.3.5.v20151012.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-io-9.3.5.v20151012.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -10,18 +10,20 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import org.eclipse.jetty.server.Server;
+
+
 
 
 
 
 public class Service {
 	private volatile static Service instance;
-	private HttpServer _server;
+
 	private Thread threadDataMaintainer;
+	private Thread threadHttpServer;
 	
 	private int maxSecondsAnchorTagDistance = 3;
 	private int maxSecondsNetworkDevice = 3;
@@ -47,24 +49,17 @@ public class Service {
 		listAnchorTagDistance = new ArrayList<common.AnchorTagDistance>();
 		listAvailableTags = new ArrayList<common.Tag>();
 		listAvailableNetworkDevices = new ArrayList<common.network.Device>();
-		
-		int httpPort = Integer.parseInt(nds.parameters.get("httpPort"));
-		
-		startHttpServer(httpPort);
-		
+
 		DataMaintainer dm = new DataMaintainer();
 		threadDataMaintainer = new Thread(dm, "DataMaintainer");
 		threadDataMaintainer.start();
+		
+		HttpServer server = new HttpServer(Integer.parseInt(nds.parameters.get("httpPort")));
+		threadHttpServer = new Thread(server, "Master-HTTPServer");
+		threadHttpServer.start();
 	}
 	
-	private void startHttpServer(int httpPort) throws Exception
-	{
-		_server = HttpServer.create(new InetSocketAddress(httpPort), 0);
-		_server.createContext("/", new MyHttpHandler());
-		_server.setExecutor(null); 
-		_server.start();
-	}
-	
+
 	public synchronized void addAnchorTagDistance(common.AnchorTagDistance newAtd)
 	{
 		boolean found = false;
@@ -239,143 +234,36 @@ public class Service {
 			}
 		}
 	}
-	
-	
-	//Creates a new thread for each HTTP request
-	static class MyHttpHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange t) throws IOException {
-        	HttpWorker worker = new HttpWorker(t);
-        	Thread threadWorker = new Thread(worker);
-        	threadWorker.start();
-        }
-    }
 }
 
-class HttpWorker implements Runnable
+class HttpServer implements Runnable
 {
-	private HttpExchange httpExchange;
-	public HttpWorker(HttpExchange t)
+	private Server _server;
+	private int httpPort;
+	
+	public HttpServer(int _httpPort)
 	{
-		httpExchange = t;
+		httpPort = _httpPort;
 	}
 	
 	@Override
 	public void run() {
-		OutputStream os = httpExchange.getResponseBody();
-		try
-		{
-			String response = null;
-			switch(httpExchange.getRequestURI().getPath())
-			{
-				case "/anchorTagDistance":
-					response = handleAddAnchorTagDistance();
-					break;
-				case "/heartbeat":
-					response = handleHeartbeat();
-					break;
-			}
-			httpExchange.sendResponseHeaders(200, response.length()); 
-			os.write(response.getBytes());
-			os.flush();
-		}
-		catch(Exception e)
-		{
+		// TODO Auto-generated method stub
+		_server = new Server(httpPort);
+		_server.setHandler(new MasterHttpHandler());
+		
+		try {
+			_server.start();
+			_server.join();
+		} catch (Exception e) {
+
 			if(common.Config.debugMode)
 				e.printStackTrace();
 			else
 				common.Util.addToLog(common.LogType.ERROR, e.getMessage());
+			
 		}
 		
 	}
 	
-	//handles the HTTP request for adding a new Anchor-Tag distance message from one of the Anchors
-	private String handleAddAnchorTagDistance() throws Exception
-	{
-		String result = null;
-		
-		Map<String,String> parameters = common.Util.splitQuery(httpExchange.getRequestURI().getQuery());
-		
-		switch(parameters.get("a"))
-		{
-			case "add":
-				common.AnchorTagDistance atd = new common.AnchorTagDistance();
-				atd.anchorId = parameters.get("anchorId");
-				atd.tagId = parameters.get("tagId");
-				atd.distance = Float.parseFloat(parameters.get("distance"));
-				atd.ts = new Date();
-				
-				service.master.Service.getInstance().addAnchorTagDistance(atd);
-				break;
-		}
-		
-		
-		result = "ok";
-		
-		return result;
-	}
-	
-	private String handleHeartbeat() throws Exception
-	{
-		String result = null;
-		
-		Map<String,String> parameters = common.Util.splitQuery(httpExchange.getRequestURI().getQuery());
-		
-		switch(parameters.get("a"))
-		{
-			case "send":
-				String deviceId = parameters.get("deviceId");
-				service.master.Service.getInstance().updateNetworkDeviceLastSeen(deviceId);
-				break;
-		}
-		
-		result = "ok";
-		
-		return result;
-	}
-	
-}
-
-
-class DataMaintainer implements Runnable
-{
-	private int sleepSeconds;
-	
-	public DataMaintainer()
-	{
-		sleepSeconds = 1;;
-	}
-	
-	@Override
-	public void run() {
-		while (true)
-		{
-			try
-			{
-				service.master.Service.getInstance().purgeOldAnchorTagDistance();
-				service.master.Service.getInstance().purgeOldNetworkDevices();
-				service.master.Service.getInstance().purgeOldTags();
-			}
-			catch(Exception e)
-			{
-				if(common.Config.debugMode)
-					e.printStackTrace();
-				else
-					common.Util.addToLog(common.LogType.ERROR, e.getMessage());
-			}
-			finally
-			{
-				sleep();
-			}
-		}
-	}
-	
-	private void sleep()
-	{
-		try {
-			Thread.sleep(sleepSeconds*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 }

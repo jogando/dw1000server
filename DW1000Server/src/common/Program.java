@@ -20,6 +20,8 @@ public class Program {
             }
 
         }
+		configFilePath = "C:\\Users\\juliano\\git\\dw1000server\\DW1000Server\\doc\\config.json";
+		deviceId = "JULIANO";
 		Program pr = new Program(configFilePath, deviceId);
 	}
 	
