@@ -32,8 +32,8 @@ public class MasterHttpHandler extends AbstractHandler {
 				case "heartbeat":
 					responseString = handleHeartbeat(request);
 					break;
-				case "/anchorTagDistance":
-					responseString = handleAddAnchorTagDistance(request);
+				case "rangeReport":
+					responseString = handleAddRangeReport(request);
 					break;
 					
 			}
@@ -56,20 +56,20 @@ public class MasterHttpHandler extends AbstractHandler {
 	}
 	
 	//handles the HTTP request for adding a new Anchor-Tag distance message from one of the Anchors
-	private String handleAddAnchorTagDistance(HttpServletRequest request) throws Exception
+	private String handleAddRangeReport(HttpServletRequest request) throws Exception
 	{
 		String result = null;
 
 		switch(request.getParameter("a"))
 		{
 			case "add":
-				common.AnchorTagDistance atd = new common.AnchorTagDistance();
-				atd.anchorId = request.getParameter("anchorId");
-				atd.tagId = request.getParameter("tagId");
-				atd.distance = Float.parseFloat(request.getParameter("distance"));
-				atd.ts = new Date();
+				common.RangeReport rr = new common.RangeReport();
+				rr.anchorId = request.getParameter("anchorId");
+				rr.tagId = request.getParameter("tagId");
+				rr.distance = Float.parseFloat(request.getParameter("distance"));
+				rr.ts = new Date();
 				
-				service.master.Service.getInstance().addAnchorTagDistance(atd);
+				service.master.Service.getInstance().addRangeReport(rr);
 				break;
 		}
 		
@@ -81,7 +81,6 @@ public class MasterHttpHandler extends AbstractHandler {
 	private String handleHeartbeat(HttpServletRequest request)
 	{
 		String result = null;
-		
 		
 		switch(request.getParameter("a"))
 		{

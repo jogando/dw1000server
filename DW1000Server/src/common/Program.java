@@ -46,8 +46,7 @@ public class Program {
 				}
 				else if(nds.type.equals("webApp"))
 				{
-					service.webApp.Service webApp = new service.webApp.Service();
-					webApp.initialize(nds);
+					service.webApp.Service.getInstance().initialize(nds);
 					common.Util.addToLog(LogType.INFO, "webApp: started");
 				}
 				else if(nds.type.equals("heartbeat"))

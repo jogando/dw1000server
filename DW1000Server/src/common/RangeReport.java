@@ -2,9 +2,9 @@ package common;
 
 import java.util.Date;
 
-public class AnchorTagDistance {
+public class RangeReport {
 	
-	public AnchorTagDistance(AnchorTagDistance atd)
+	public RangeReport(RangeReport atd)
 	{
 		anchorId = atd.anchorId;
 		tagId = atd.tagId;
@@ -12,7 +12,7 @@ public class AnchorTagDistance {
 		ts = atd.ts;
 	}
 	
-	public AnchorTagDistance()
+	public RangeReport()
 	{}
 		
 	public String anchorId;

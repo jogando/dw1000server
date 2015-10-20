@@ -12,23 +12,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-public class Util {
-
-	//Splits the Query String of a HTTP REQUEST into a collection of parameters
-	//Example: http://localhost:8000/test?param1=val1&param2=val2
-	//Result: 
-	//param1 = val1
-	//param2 = val2
-	public static Map<String, String> splitQuery(String str) throws Exception {
-	    Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-	    String[] pairs = str.split("&");
-	    for (String pair : pairs) {
-	        int idx = pair.indexOf("=");
-	        query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
-	    }
-	    return query_pairs;
-	}
-	
+public class Util {	
 	//Returns the content of a text file as a string
 	public static String readTextFromFile(String path) throws Exception
 	{

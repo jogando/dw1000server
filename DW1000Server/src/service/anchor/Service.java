@@ -40,7 +40,7 @@ public class Service  implements serialPort.ISerialPortInterfaceObserver{
 		String[] parts = data.replace("[", "").replace("]", "").split(":");
 		
 		String url = masterUrl
-				+"/anchorTagDistance?a=add"
+				+"/rangeReport?a=add"
 				+ "&anchorId="+anchorId
 				+ "&tagId="+parts[0]
 				+ "&distance="+parts[1];

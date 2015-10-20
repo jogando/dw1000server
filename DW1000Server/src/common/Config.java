@@ -15,7 +15,6 @@ import com.google.gson.JsonParser;
 
 public class Config {
 	public static String deviceId;
-	//public List<Tag> listTags;
 	public static List<Anchor> listAnchors;
 	public static Scene scene;
 	
@@ -57,8 +56,6 @@ public class Config {
 				if(service.type.equals("anchor"))
 				{
 					Anchor anchor = new Anchor();
-					//anchor.arduinoSerialPort = service.parameters.get("portName");
-					//anchor.uwbShortAddress = service.parameters.get("uwbShortAddress");
 					anchor.id = service.parameters.get("anchorId");
 					anchor.coordinates = new Coordinate(
 							Float.parseFloat(service.parameters.get("coordinateX")),
@@ -105,7 +102,7 @@ public class Config {
 			service.type = serviceObject.get("type").getAsString();
 			if(serviceObject.get("parameters") != null)
 			{
-				service.parameters = getServiceParameters(serviceObject.get("parameters").getAsJsonArray());
+				service.parameters = getParameters(serviceObject.get("parameters").getAsJsonArray());
 			}
 			result.add(service);
 		}
@@ -113,7 +110,7 @@ public class Config {
 	}
 
 	
-	private static HashMap<String, String> getServiceParameters(JsonArray serviceParameters)
+	private static HashMap<String, String> getParameters(JsonArray serviceParameters)
 	{
 		HashMap<String, String> result = new HashMap<String, String>();
 		for(int i =0;i<serviceParameters.size();i++)

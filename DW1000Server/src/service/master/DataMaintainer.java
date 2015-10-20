@@ -1,12 +1,15 @@
 package service.master;
 
+//This class will handle the deletion of old data.
+//For example, if a range report was received more than X seconds, it needs to be deleted since the
+//TAG could be somewhere else... we would be showing a wrong position
 public class DataMaintainer implements Runnable
 {
 	private int sleepSeconds;
 	
 	public DataMaintainer()
 	{
-		sleepSeconds = 1;;
+		sleepSeconds = 1;
 	}
 	
 	@Override
@@ -15,7 +18,7 @@ public class DataMaintainer implements Runnable
 		{
 			try
 			{
-				service.master.Service.getInstance().purgeOldAnchorTagDistance();
+				service.master.Service.getInstance().purgeOldRangeReports();
 				service.master.Service.getInstance().purgeOldNetworkDevices();
 				service.master.Service.getInstance().purgeOldTags();
 			}

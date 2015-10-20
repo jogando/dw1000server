@@ -13,7 +13,7 @@
         {
           "type": "webApp",
           "parameters": [
-            { "webPath": "C:\\Users\\juliano\\git\\dw1000server\\DW1000Server\\src\\service\\webApp" },
+            { "webPath": "C:\\Users\\juliano\\git\\dw1000server\\DW1000Server\\webApp" },
             { "httpPort": 8082 }
           ]
         }

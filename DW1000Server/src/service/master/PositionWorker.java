@@ -3,6 +3,8 @@ package service.master;
 import java.util.ArrayList;
 import java.util.List;
 
+//This class calculates the position of a TAG using as an input the Range Reports received from
+// 3 different anchors.
 public class PositionWorker {
 	public static common.TagPosition getTagPositionByTagId(String tagId)
 	{
@@ -11,17 +13,17 @@ public class PositionWorker {
 		List<common.Anchor> listAnchorsInRange = new ArrayList<common.Anchor>();
 		List<Float> listDistances = new ArrayList<Float>();
 		
-		List<common.AnchorTagDistance> listAnchorTagDistances = service.master.Service.getInstance().getListAnchorTagDistance();
-		List<common.AnchorTagDistance> listAnchorTagDistancesUsed = new ArrayList<common.AnchorTagDistance>();
+		List<common.RangeReport> listRangeReports = service.master.Service.getInstance().getListRangeReport();
+		List<common.RangeReport> listRangeReportsUsed = new ArrayList<common.RangeReport>();
 		
-		for(common.AnchorTagDistance atd : listAnchorTagDistances)
+		for(common.RangeReport rr : listRangeReports)
 		{
-			if(atd.tagId.equals(tagId))
+			if(rr.tagId.equals(tagId))
 			{
-				listAnchorsInRange.add(common.Config.getAnchorById(atd.anchorId));
-				listDistances.add(atd.distance);
+				listAnchorsInRange.add(common.Config.getAnchorById(rr.anchorId));
+				listDistances.add(rr.distance);
 				
-				listAnchorTagDistancesUsed.add(atd);
+				listRangeReportsUsed.add(rr);
 				
 				if(listAnchorsInRange.size() == 3)//we only need 3 anchors for trilaterating
 				{
@@ -33,7 +35,7 @@ public class PositionWorker {
 		result = new common.TagPosition();
 		
 		result.tag = new common.Tag(tagId);
-		result.listAnchorTagDistance = listAnchorTagDistancesUsed; 
+		result.listRangeReports = listRangeReportsUsed; 
 		
 		if(listAnchorsInRange.size() == 3)//we only need 3 anchors for trilaterating
 		{
@@ -50,7 +52,7 @@ public class PositionWorker {
 		else// not enough anchors for trilaterating
 		{
 			result.coordinates = null;
-			common.Util.addToLog(common.LogType.INFO, "Not enouth anchors for trilaterating");
+			common.Util.addToLog(common.LogType.INFO, "Not enough anchors for trilaterating");
 		}
 		
 		return result;

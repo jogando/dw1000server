@@ -6,19 +6,26 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
-import service.master.MasterHttpHandler;
 
 
 public class Service {
-	private Server _server ;
 	private static Service instance;
 	private Thread threadHttpServer;
 	
 	private String webPath;
 	
-	public Service()
+	private Service()
 	{
 		
+	}
+	
+	public static Service getInstance()
+	{
+		if(instance == null)
+		{
+			instance = new Service();
+		}
+		return instance;
 	}
 
 	

@@ -29,7 +29,7 @@ public class Service {
 	private int maxSecondsNetworkDevice = 3;
 	private int maxSecondsTag = 2;
 	
-	private List<common.AnchorTagDistance> listAnchorTagDistance;
+	private List<common.RangeReport> listRangeReports;
 	private List<common.Tag> listAvailableTags;
 	private List<common.network.Device> listAvailableNetworkDevices;
 	
@@ -46,7 +46,7 @@ public class Service {
 	
 	public void initialize(common.network.DeviceService nds) throws Exception
 	{
-		listAnchorTagDistance = new ArrayList<common.AnchorTagDistance>();
+		listRangeReports = new ArrayList<common.RangeReport>();
 		listAvailableTags = new ArrayList<common.Tag>();
 		listAvailableNetworkDevices = new ArrayList<common.network.Device>();
 
@@ -60,26 +60,26 @@ public class Service {
 	}
 	
 
-	public synchronized void addAnchorTagDistance(common.AnchorTagDistance newAtd)
+	public synchronized void addRangeReport(common.RangeReport newRR)
 	{
 		boolean found = false;
 		
-		for(common.AnchorTagDistance atd : listAnchorTagDistance)
+		for(common.RangeReport rr : listRangeReports)
 		{
-			if(atd.anchorId.equals(newAtd.anchorId) && atd.tagId.equals(newAtd.tagId))
+			if(rr.anchorId.equals(newRR.anchorId) && rr.tagId.equals(newRR.tagId))
 			{
-				atd.distance = newAtd.distance;
-				atd.ts = new Date();
+				rr.distance = newRR.distance;
+				rr.ts = new Date();
 				found = true;
-				common.Util.addToLog(common.LogType.INFO, "updated: "+newAtd.anchorId+"<->"+newAtd.tagId+":"+newAtd.distance);
+				common.Util.addToLog(common.LogType.INFO, "updated: "+newRR.anchorId+"<->"+newRR.tagId+":"+newRR.distance);
 				break;
 			}
 		}
 		
 		if(!found)
 		{
-			common.Util.addToLog(common.LogType.INFO, "added: "+newAtd.anchorId+"<->"+newAtd.tagId+":"+newAtd.distance);
-			listAnchorTagDistance.add(newAtd);
+			common.Util.addToLog(common.LogType.INFO, "added: "+newRR.anchorId+"<->"+newRR.tagId+":"+newRR.distance);
+			listRangeReports.add(newRR);
 		}
 		
 		//update available tags
@@ -87,7 +87,7 @@ public class Service {
 		
 		for(common.Tag tag : listAvailableTags)
 		{
-			if(tag.id.equals(newAtd.tagId))
+			if(tag.id.equals(newRR.tagId))
 			{
 				tagFound = true;
 				tag.lastSeen = new Date();//update the last seen datetime
@@ -98,7 +98,7 @@ public class Service {
 		if(!tagFound)
 		{
 			common.Tag tag = new common.Tag();
-			tag.id = newAtd.tagId;
+			tag.id = newRR.tagId;
 			tag.lastSeen = new Date();
 			
 			listAvailableTags.add(tag);
@@ -107,13 +107,13 @@ public class Service {
 	}
 	
 	//this method returns a COPY of the original list, so the thread doesn't lock the original one
-	public synchronized List<common.AnchorTagDistance> getListAnchorTagDistance()
+	public synchronized List<common.RangeReport> getListRangeReport()
 	{
-		List<common.AnchorTagDistance> result = new ArrayList<common.AnchorTagDistance>();
+		List<common.RangeReport> result = new ArrayList<common.RangeReport>();
 		
-		for(common.AnchorTagDistance atd : listAnchorTagDistance)
+		for(common.RangeReport atd : listRangeReports)
 		{
-			result.add(new common.AnchorTagDistance(atd));
+			result.add(new common.RangeReport(atd));
 		}
 		return result;
 	}
@@ -130,9 +130,9 @@ public class Service {
 		return result;
 	}
 	
-	public synchronized void purgeOldAnchorTagDistance()
+	public synchronized void purgeOldRangeReports()
 	{
-		ListIterator<common.AnchorTagDistance> iter = listAnchorTagDistance.listIterator();
+		ListIterator<common.RangeReport> iter = listRangeReports.listIterator();
 		Date now = new Date();
 		
 		//remove anchor-tag distance messages older than the max time allowed
@@ -209,7 +209,7 @@ public class Service {
 		List<String> listAllTagIds = new ArrayList<String>();
 		
 		
-		for(common.AnchorTagDistance atd : listAnchorTagDistance)
+		for(common.RangeReport atd : listRangeReports)
 		{
 			if(!listAllTagIds.contains(atd.tagId))
 			{
@@ -220,7 +220,7 @@ public class Service {
 		for(String tagId:listAllTagIds)
 		{
 			int countAnchors = 0;
-			for(common.AnchorTagDistance atd : listAnchorTagDistance)
+			for(common.RangeReport atd : listRangeReports)
 			{
 				if(atd.tagId.equals(tagId))
 				{
