@@ -18,7 +18,7 @@ For calculating the position of the Tag, we use a method called trilateration. T
 
 YouTube video:
 
-[![Alt text for your video](https://img.youtube.com/vi/5WXWx_jxGw8/0.jpg)](https://www.youtube.com/watch?v=5WXWx_jxGw8)
+[![Alt text for your video](https://img.youtube.com/vi/QISVZJhe48A/0.jpg)](https://www.youtube.com/watch?v=QISVZJhe48A)
 
 
 <h1>Architecture</h1>
@@ -34,7 +34,7 @@ The mac is also running the **master** service and the **webApp** service.
 The program has been tested in Mac OS and in Raspbian
 
 \<path to JAR\>: this is the path to the generated JAR.
-\<path to config file\>: this is the path to the JSON config file.
+\<path to config file\>: this is the path to the JSON config file (an example can be found in the doc folder)
 \<device id\>:device ID of the computer you are running the program from.
 
 <h2>Raspbian</h2>
