@@ -2,6 +2,7 @@ var ratioCoordinateToPx = 100;
 
 var anchorColor = "#00A308";
 var tagColor = "#FF1C0A";
+var rangeReportColor = "rgba(135, 206, 250, .3)";
 var scene;
 var listTagPositions;
 
@@ -62,6 +63,22 @@ function createScene()
     document.getElementById("canvasContainer").innerHTML = html;
 }
 
+function getAnchorById(id)
+{
+	var result = null;
+	
+	for(var i=0;i<scene.listAnchors.length;i++)
+	{
+		if(scene.listAnchors[i].id == id)
+		{
+			result = scene.listAnchors[i];
+			break;
+		}
+	}
+	
+	return result;
+}
+
 function renderScene()
 {
     var ctx = document.getElementById("canvas").getContext("2d");
@@ -78,7 +95,17 @@ function renderScene()
     	document.getElementById("divInfo").innerHTML = "";
     	for (var i = 0; i < listTagPositions.length ; i++)
         {
-            renderTag(ctx, listTagPositions[i]);
+    		
+    		
+    		if(listTagPositions[i].listRangeReports != null)// this means that the trilateration was performed, so we can place the tag in the map
+			{
+    			renderRangeReport(ctx,listTagPositions[i]);
+			}
+    		if(listTagPositions[i].coordinates != null)// this means that the trilateration was performed, so we can place the tag in the map
+			{
+    			renderTag(ctx, listTagPositions[i]);
+			}
+    		
             renderInfo(listTagPositions[i]);
         }
    	}
@@ -109,6 +136,24 @@ function renderTag(ctx, tag)
     );
 }
 
+function renderRangeReport(ctx, tagPosition)
+{
+	for(var i=0;i<tagPosition.listRangeReports.length;i++)
+	{
+		var rangeReport = tagPosition.listRangeReports[i];
+		var rangeRadius = rangeReport.distance * ratioCoordinateToPx;
+	    var anchor = getAnchorById(rangeReport.anchorId);
+	    drawCircle(
+	        ctx,
+	        getPxFromCoordinate(anchor.coordinates.x),
+	        getPxFromCoordinate(anchor.coordinates.y), 
+	        rangeRadius,
+	        rangeReportColor
+	    );
+	}
+    
+}
+
 function drawCircle(ctx, x, y, r, fillColor)
 {
     ctx.beginPath();
@@ -130,12 +175,20 @@ function drawRectangle(ctx, x, y, width, height, fillColor)
 function renderInfo(tagPosition)
 {
 	var html = "<b>tagId: "+tagPosition.tag.id+"</b></br>";
-	html+="x:"+tagPosition.coordinates.x+"<br>";
-	html+="y:"+tagPosition.coordinates.y+"<br>";
-	for(var i=0;i<tagPosition.listAnchorTagDistance.length;i++)
+	if(tagPosition.coordinates == null)
 	{
-		html+="distance from "+tagPosition.listAnchorTagDistance[i].anchorId+":"
-			+tagPosition.listAnchorTagDistance[i].distance+" m<br>";
+		html+="not enough anchors for trilaterating...<br>";
+	}
+	else
+	{
+		html+="x:"+tagPosition.coordinates.x+"<br>";
+		html+="y:"+tagPosition.coordinates.y+"<br>";
+	}
+	
+	for(var i=0;i<tagPosition.listRangeReports.length;i++)
+	{
+		html+="distance from "+tagPosition.listRangeReports[i].anchorId+":     "
+			+tagPosition.listRangeReports[i].distance+" m<br>";
 	}
 	html +="<br>";
 	document.getElementById("divInfo").innerHTML += html;
@@ -152,5 +205,4 @@ function btnRunning_click()
 	{
 		document.getElementById("btnRunning").value = "start";
 	}
-	
 }

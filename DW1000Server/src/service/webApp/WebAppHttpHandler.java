@@ -39,8 +39,13 @@ public class WebAppHttpHandler extends AbstractHandler  {
 					break; 
 			}
 			
-			response.setStatus(HttpServletResponse.SC_OK);
-			response.getWriter().println(responseString);
+			if(baseRequest.isHandled() && responseString != null)
+			{
+				response.setStatus(HttpServletResponse.SC_OK);
+				response.getWriter().println(responseString);
+			}
+			
+			
 		}
 		catch(Exception e)
 		{

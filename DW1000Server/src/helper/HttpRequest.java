@@ -121,10 +121,16 @@ public class HttpRequest {
 	        } 
 	        catch (Exception e) 
 	        {
-	        	if(common.Config.debugMode)
-					e.printStackTrace();
-				else
-					common.Util.addToLog(common.LogType.ERROR, e.getMessage());
+	        	if(e.getMessage().equals("Connection refused"))
+	        	{
+	        		String message = e.getMessage()+ " on "+_urlString+". Is the Master service running?";
+	        		common.Util.addToLog(common.LogType.ERROR, message);
+	        	}
+	        	else
+	        	{
+	        		common.Util.addToLog(common.LogType.ERROR, e.getMessage());
+	        	}
+				
 	        } 
 	        finally {
 	            if(connection != null) {

@@ -20,8 +20,8 @@ public class Program {
             }
 
         }
-		configFilePath = "C:\\Users\\juliano\\git\\dw1000server\\DW1000Server\\doc\\config.json";
-		deviceId = "JULIANO";
+		//configFilePath = "/Users/jogando/dev/config/DW1000Server.json";
+		//deviceId = "xter346";
 		Program pr = new Program(configFilePath, deviceId);
 	}
 	
@@ -31,6 +31,13 @@ public class Program {
 			Config.initialize(configFilePath, deviceId);
 			
 			common.network.Device currentDevice = Config.getCurrentNetworkDevice();
+			
+			if(currentDevice == null)
+			{
+				common.Util.addToLog(common.LogType.ERROR, "The current device '"+deviceId+"' couldn't be found in the configuration file");
+				return;
+			}
+			
 			
 			for(common.network.DeviceService nds:currentDevice.listServices)
 			{

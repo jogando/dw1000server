@@ -29,10 +29,10 @@ public class MasterHttpHandler extends AbstractHandler {
 		{
 			
 			switch (target) {
-				case "heartbeat":
+				case "/heartbeat":
 					responseString = handleHeartbeat(request);
 					break;
-				case "rangeReport":
+				case "/rangeReport":
 					responseString = handleAddRangeReport(request);
 					break;
 					

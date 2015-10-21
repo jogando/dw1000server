@@ -65,6 +65,8 @@ public class Config {
 				}
 			}
 		}
+		
+		common.Util.addToLog(common.LogType.INFO, listAnchors.size()+" anchors found in config file.");
 	}
 	
 	private static void loadScene(JsonObject jsonScene)
@@ -89,6 +91,8 @@ public class Config {
 			
 			listNetworkDevices.add(device);
 		}
+		
+		common.Util.addToLog(common.LogType.INFO, listNetworkDevices.size()+" network devices found in config file.");
 	}
 	
 	private static List<common.network.DeviceService> getListServices(JsonArray services)
